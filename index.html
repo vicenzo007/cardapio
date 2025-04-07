@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boteco do Shao - Lanches</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <div class="w-100 text-center">
+                <a class="navbar-brand mx-auto d-inline-flex align-items-center" href="#">
+                    <img src="boteco do shao.jpg" alt="Boteco do Shao" class="navbar-logo">
+                    <span class="brand-text">Boteco do Shao</span>
+                </a>
+            </div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <button class="category-btn active" onclick="filterProducts('todos')">Todos</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="category-btn" onclick="filterProducts('sanduiches')">Sanduíches</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="category-btn" onclick="filterProducts('porcoes')">Porções</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="category-btn" onclick="filterProducts('bebidas')">Bebidas</button>
+                    </li>
+                </ul>
+                <button class="btn btn-light position-relative" data-bs-toggle="modal" data-bs-target="#cartModal">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Products Section -->
+    <div class="container my-4">
+        <div class="row" id="productsContainer"></div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal fade" id="cartModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Carrinho de Compras</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="cartItems"></div>
+                    <div class="text-end mt-3">
+                        <h5>Total: R$ <span id="cartTotal">0.00</span></h5>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continuar Comprando</button>
+                    <button type="button" class="btn btn-primary" onclick="checkout()">Finalizar Pedido</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+        function addCheckoutModal() {
+            const modalHTML = `
+                <div class="modal fade" id="checkoutModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Dados para Entrega</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="checkoutForm">
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Nome Completo*</label>
+                                        <input type="text" class="form-control" id="name" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="phone" class="form-label">Telefone*</label>
+                                        <input type="tel" class="form-control" id="phone" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="street" class="form-label">Rua e Número*</label>
+                                        <input type="text" class="form-control" id="street" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="neighborhood" class="form-label">Bairro*</label>
+                                        <input type="text" class="form-control" id="neighborhood" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="complement" class="form-label">Complemento</label>
+                                        <input type="text" class="form-control" id="complement">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Forma de Pagamento*</label>
+                                        <select class="form-select" id="paymentMethod" required>
+                                            <option value="">Selecione a forma de pagamento</option>
+                                            <option value="pix">PIX</option>
+                                            <option value="card">Cartão de Crédito/Débito</option>
+                                            <option value="cash">Dinheiro</option>
+                                        </select>
+                                    </div>
+                                    <div id="changeContainer" class="mb-3 d-none">
+                                        <label for="change" class="form-label">Troco para quanto?</label>
+                                        <input type="number" class="form-control" id="change" step="0.01">
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-primary" onclick="confirmOrder()">Confirmar Pedido</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function saveCustomerData(orderData) {
+            const customerData = {
+                name: orderData.name,
+                phone: orderData.phone,
+                street: orderData.street,
+                neighborhood: orderData.neighborhood,
+                complement: orderData.complement
+            };
+            localStorage.setItem('customerData', JSON.stringify(customerData));
+        }
+
+        function loadCustomerData() {
+            const savedData = localStorage.getItem('customerData');
+            if (savedData) {
+                const customerData = JSON.parse(savedData);
+                document.getElementById('name').value = customerData.name || '';
+                document.getElementById('phone').value = customerData.phone || '';
+                document.getElementById('street').value = customerData.street || '';
+                document.getElementById('neighborhood').value = customerData.neighborhood || '';
+                document.getElementById('complement').value = customerData.complement || '';
+            }
+        }
+
+        function confirmOrder() {
+            const form = document.getElementById('checkoutForm');
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const orderData = {
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                street: document.getElementById('street').value,
+                neighborhood: document.getElementById('neighborhood').value,
+                complement: document.getElementById('complement').value,
+                paymentMethod: document.getElementById('paymentMethod').value,
+                change: document.getElementById('change')?.value,
+                items: cart,
+                total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+            };
+
+            saveCustomerData(orderData);
+
+            let message = `🍔 *Novo Pedido - Boteco do Shao* 🍔\n\n`;
+            message += `*Cliente:* ${orderData.name}\n`;
+            message += `*Telefone:* ${orderData.phone}\n`;
+            message += `*Endereço:* ${orderData.street}\n`;
+            message += `*Bairro:* ${orderData.neighborhood}\n`;
+            if (orderData.complement) {
+                message += `*Complemento:* ${orderData.complement}\n`;
+            }
+            message += `\n*Itens do Pedido:*\n`;
+            
+            // ...rest of your existing message formatting code...
+        }
+    </script>
+</body>
+</html>
