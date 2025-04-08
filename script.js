@@ -2,35 +2,35 @@ const products = [
     // Sanduíches
     {
         id: 1,
-        name: "X-Burger",
+        name: "Smash Burger",
         price: 26.90,
         category: "sanduiches",
-        description: "Pão, hambúrguer artesanal, queijo, alface e tomate",
+        description: "Pãoc/ gergilim selado, smash burger, fatias de cheddar e molho especial",
         image: "./download.jpg"
     },
     {
         id: 2,
-        name: "X-Bacon",
+        name: "Salada Burger",
         price: 27.90,
         category: "sanduiches",
-        description: "Pão, hambúrguer artesanal, queijo, bacon, alface e tomate",
+        description: "Pãoc/ gergilim selado, smash burger, fatias de cheddar e alface tomate e molho especial",
         image: "./download (3).jpg"
     },
     // Porções
     {
         id: 3,
-        name: "Batata Frita",
-        price: 29.90,
+        name: "Batata Frita rustica",
+        price: 48.00,
         category: "porcoes",
-        description: "Porção de batata frita crocante (400g)",
+        description: "Porção de batata frita rustica crocante (400g)",
         image: "./download (2).jpg"
     },
     {
         id: 4,
-        name: "Onion Rings",
-        price: 28.90,
+        name: "Batata Frita rustica individual",
+        price: 9.50,
         category: "porcoes",
-        description: "Anéis de cebola empanados (300g)",
+        description: "Porção de batata frita rustica crocante (100g)",
         image: "./download (1).jpg"
     },
     // Bebidas
